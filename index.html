@@ -1,0 +1,112 @@
+<!-- CLTC-AEC-Data-Collection-Utility
+  by Kyle Pickle, 9/20/2022
+  created for the CLTC and Frontier Energy project at the AEC
+
+  An interface for displaying data on different values, specified in the url.
+  The chosen data point can be graphed within a given timeframe, or compared
+  against multiple datapoints accross multiple timeframes -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/assets/2018_Logo_Horiz_Stacked-No_DeptDesign ICON ONLY.png" type="image/png">
+
+    <!-- local scripts -->
+    <link rel="stylesheet" href="/style.css" media="screen"/>
+    <script src="/scripts/graphify.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- jQuery CSV parser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.9/jquery.csv.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+
+    <!-- Google charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+  <body style="margin: 0px;">
+    <div id="nav" style="background-color: #00447C; height: 55px; text-align: left;"></div>
+    <br>
+    <div>
+      <div id="table_div" style="text-align: center; left: 0px; top: 55px; position: fixed; width: 20%; height: 100%; padding-bottom: 55px;"></div>
+      <div id="chart_div" style="right: 0px; top: 55px; position:fixed; width: 80%; height: 70%"></div>
+      <div id="title_div" style="text-align: left; left: 20%; top: 55px; position:fixed; width: 80%; height: 90px">
+        <img src="/assets/2018_Logo_Horiz_Stacked-No_DeptDesign_0.png" style="height: 70px; padding-top: 10px; padding-bottom: 10px; padding-left: 20px; z-index: 1;">      <div id="alert_div" style="text-align: center; width: 80%; top: 55px; left: 20%; padding-top: 10px; position:fixed;"></div>
+      </div>
+      <div id="stats_div" style="left: 20%; bottom: 0px; position: fixed; width: 30%; height: 30%; text-align: center;">
+        <div>
+          <h2 style="margin: 5px;">Statistics: </h2>
+          <h4 style="margin-top: 5px;" id="stats_text"></h4>
+        </div>
+        <div>
+          <button class="btn btn-secondary" id="select-range-button" onclick="exportTable()" style="width: 120px; height: 40px; font-size: 20px;">Export CSV</button>
+          <button class="btn btn-secondary" id="select-range-button" onclick="exportGraph()" style="width: 120px; height: 40px; font-size: 20px;">Export SVG</button>
+          <br><br>
+          <input type="file" id="uploaded_file" style="position: relative; left: 50%; margin-left: -90px; margin-bottom: 5px;">
+          <button class="btn btn-secondary" id="upload-button" onclick="importTable()" style="width: 180px; height: 40px; font-size: 20px;">Upload CSV</button>
+        </div>
+      </div>
+      <div id="settings_div" style="left: 50%; bottom: 0px; position: fixed; width: 20%; height: 38%; text-align: right;">
+        <div style="top: 50%; position: relative; height: 110px; margin-top: -55px;">
+          <label for="wrap-setting">Wrap the x-axis:</label>
+          <select class="btn btn-secondary dropdown-toggle" name="wrap-setting" id="wrap-setting" style="font-size: 16px;">
+            <option value="normal">Do not wrap data</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+          <br><br>
+          <label for="chart-title" style="margin-left: 10px">Chart Title:</label>
+          <input type="text" name="chart-title" id="chart-title" style="width: 200px; text-align: right; position: fixed; right: 30%;"class="form-control" placeholder="Chart Title" aria-label="Username" aria-describedby="basic-addon1">
+          <br><br><br>
+          <label for="avg-setting" style="margin-left: 10px">Average?:</label>
+          <input type="checkbox" id="avg-setting" name="avg-setting">
+        </div>
+      </div>
+      <div id="range_div" style="right: 0px; bottom: 0px; position:fixed; width: 30%; height: 30%; text-align: center;">
+        <div>
+          <div>
+            <h2 style="margin-top: 10px;">From:</h2>
+            <input class="input-sm" type="date" name="from-date" id="from-date">
+            <input class="input-sm" type="time" name="from-time" id="from-time">
+          </div>
+          <div>
+            <h2>To:</h2>
+            <input class="input-sm" type="date" name="to-date" id="to-date">
+            <input class="input-sm" type="time" name="to-time" id="to-time">
+          </div>
+          <br>
+        </div>
+        <div>
+          <button class="btn btn-primary" id="select-range-button" style="font-size: 16px;" onclick="drawFromRange()">Redraw</button>
+          or 
+          <button class="btn btn-primary" id="add-range-button" style="font-size: 16px;" onclick="addFromRange()">Add</button>
+          <select class="btn btn-secondary dropdown-toggle" name="index-select" id="index-select" style="font-size: 16px;">
+          </select>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script defer type = "text/javascript">
+    $(window).on('load', function() {
+      // Get the page index from url
+      title = "";
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      // load the visualization library from Google and set a listener
+      google.charts.load('current', {
+        packages: ['corechart', 'table']
+      });
+      // Parse the data once API is loaded
+      alert = "Loading Google Charts...";
+    });
+  </script>
+</html>

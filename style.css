@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Abel&display=swap');
+
+/*** GLOBAL ***/
+h1, h2, h3, h4, p, label, a, input, textarea, button, select, div {
+    font-family: 'Abel', sans-serif;
+}
+label, td a, button, select, div {
+    font-size: large;
+}
+
+.divtable {
+    display: table;
+  }
+  .divtable div {
+    display: table-row;
+  }
+  .divtable div span {
+    display: table-cell;
+    padding: 2px;
+  }
+
+/*** EDIT ***/
+form div {
+  margin-left: 100px;
+  margin-right: 100px;
+  text-align: center;
+}
+form div label {
+  text-align: center;
+}
