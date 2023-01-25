@@ -1,4 +1,4 @@
-# CLTC AEC Data Aggregator <img src="assets/2018_Logo_Horiz_Stacked-No_DeptDesign_0.png" alt="CLTC Logo" width="150" style="float: right;"/>
+# CLTC AEC Data Visualizer <img src="assets/2018_Logo_Horiz_Stacked-No_DeptDesign_0.png" alt="CLTC Logo" width="150" style="float: right;"/>
 
 ## Summary
 A static, purely front-end version of the data tool used by the CLTC to store and display chronological data collected over long periods of time.

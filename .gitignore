@@ -1,3 +1,2 @@
-csv_input/*
-csv_output/*
-database_output/*
+data_collection_utility/csv_input/*
+data_collection_utility/csv_output/*

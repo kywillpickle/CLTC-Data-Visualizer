@@ -1,5 +1,5 @@
-/* CLTC-AEC-Data-Collection-Utility
-   by Kyle Pickle, 10/13/2022
+/* CLTC-Data-Visualizer
+   by Kyle Pickle, 1/25/2022
    Created for the CLTC and Frontier Energy project at the AEC
 
    graphify.js

@@ -1,3 +1,11 @@
+/* CLTC-Data-Visualizer
+by Kyle Pickle, 1/25/2022
+created for the CLTC and Frontier Energy project at the AEC
+
+An interface for displaying data on different values, specified in the url.
+The chosen data point can be graphed within a given timeframe, or compared
+against multiple datapoints accross multiple timeframes */
+
 @import url('https://fonts.googleapis.com/css2?family=Abel&display=swap');
 
 /*** GLOBAL ***/
