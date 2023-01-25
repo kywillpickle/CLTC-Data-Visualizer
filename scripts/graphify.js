@@ -616,7 +616,7 @@
       };
       file = document.getElementById("uploaded_file").files[0];
       console.log(file);
-      if(file.type != "application/vnd.ms-excel") {
+      if(file.type != "application/vnd.ms-excel" && file.type != "text/csv") {
          if(!window.chrome) alert("File must be a .csv!");
          return;
       }
