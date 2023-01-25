@@ -115,7 +115,7 @@
     * @param {number} index The index (col) of data to switch to.
    */
    async function changePage(index=1, ignorewarn=false) {
-      if(ignorewarn || window.confirm("This will reset the display. Are you sure?")) {
+      if(ignorewarn || (!window.chrome && window.confirm("This will reset the display. Are you sure?"))) {
          pageIndex = index;
          // Systematically generate a header based on the loaded .csv data
          htmlstr = "<table style=\"width: 100%; height: 100%\"><tr>";
@@ -616,7 +616,7 @@
       };
       file = document.getElementById("uploaded_file").files[0];
       console.log(file);
-      if(file.type != "application/vnd.ms-excel") {
+      if(file.type != "application/vnd.ms-excel" && window.chrome) {
          alert("File must be a .csv!");
          return;
       }
