@@ -49,6 +49,60 @@
        }
        return start;
    }
+
+   /**
+    * A Function that tries to convert any date/time format into an ISO-formatted datestring.
+    * 
+    * @param {String} str The string to convert.
+    * @return {String} the converted ISO string.
+   */
+   function strToISO(str) {
+      // Assume the string goes in the order Month, Day, Year, Hours, Minutes, Seconds, [AM/PM, Timezone]
+      tokens = str.split(/[\s\-/:]/)
+      month=""
+      day=""
+      if(tokens[1].split(/[a-z]/i).join("") == "") {
+         // ...unless the 2nd token is a string-formatted month
+         day = tokens[0]
+         if(day.length == 1) day = "0" + day
+         if (tokens[1] == "Jan")      month = "01"
+         else if (tokens[1] == "Feb") month = "02"
+         else if (tokens[1] == "Mar") month = "03"
+         else if (tokens[1] == "Apr") month = "04"
+         else if (tokens[1] == "May") month = "05"
+         else if (tokens[1] == "Jun") month = "06"
+         else if (tokens[1] == "Jul") month = "07"
+         else if (tokens[1] == "Aug") month = "08"
+         else if (tokens[1] == "Sep") month = "09"
+         else if (tokens[1] == "Oct") month = "10"
+         else if (tokens[1] == "Nov") month = "11"
+         else if (tokens[1] == "Dec") month = "12"
+      }
+      else {
+         month = tokens[0]
+         if(month.length == 1) month = "0" + month
+         day = tokens[1]
+         if(day.length == 1) day = "0" + day
+      }
+      year = tokens[2]
+      if (year.length == 2) year = "20"+year
+      hours = tokens[3]
+      if (hours.length == 1) hours = "0"+hours
+      minutes = tokens[4]
+      if (minutes.length == 1) minutes = "0"+minutes
+      seconds = tokens[5]
+      if (seconds.length == 1) minutes = "0"+minutes
+      if (tokens.length > 6) {
+         if((tokens[6].toUpperCase()=="PM" && Number(hours)!=12) ||
+            (tokens[6].toUpperCase()=="AM" && Number(hours)==12)) hours = (Number(hours)+12).toString()
+      }
+      timezone_offset = "+00:00"
+      if (tokens.length > 7) {
+         if(tokens[7] == "PDT") timezone_offset = "-07:00"
+         else if(tokens[7] == "PST") timezone_offset = "-08:00"
+      }
+      return year+"-"+month+"-"+day+"T"+hours+":"+minutes+":"+seconds+".000"+timezone_offset
+  }
    
    /**
     * Loads the data stored in `/csv_output/data.csv`.
@@ -64,33 +118,32 @@
       let row = ["Timestamp"];
       indexselectstr = "";
       stats = [];
-      for(var i = 2; i < arrayData[0].length; i++) {
+      for(var i = 1; i < arrayData[0].length; i++) {
          row.push(arrayData[0][i]);
-         stats.push({mean: 0, max: 0, sum:0, f: "", c: 0});
-         indexselectstr += "<option value=\""+(i-1)+"\">"+row[i-1]+"</option>";
+         stats.push({mean: 0, max: 0, sum:0, c: 0});
+         indexselectstr += "<option value=\""+i+"\">"+row[i]+"</option>";
       }
       arrayData[0]=row;
       // Add the header options to the index selection dropdown
       document.getElementById("index-select").innerHTML = indexselectstr;
       // Add the data
       for(var i = 1; i < arrayData.length; i++) {
-         let row = [{v: arrayData[i][0], f: arrayData[i][1]}];
-         for(var j = 2; j < arrayData[i].length; j++) {
+         let row = [{v: parseInt(new Date(strToISO(arrayData[i][0])).getTime())/1000, f: arrayData[i][0]}];
+         for(var j = 1; j < arrayData[i].length; j++) {
             // Assign both values and formatted values for each datapoint
             // This shows units, and doesn't change the shown value when comparing
-            if(arrayData[i][j] == null) row.push(null);
-            else if(arrayData[0][j-1] == "roomOccupancy" || arrayData[0][j-1] == "afterHours") {
-               if(arrayData[i][j] == "true") row.push({v: 1, f: "true"});
-               else if(arrayData[i][j] == "false") row.push({v: 0, f: "false"});
-               else row.push(null);
+            if(arrayData[i][j] == null || arrayData[i][j] == "No CT") row.push(null);
+            else if(arrayData[0][j].split("(").length > 1) {
+               if(arrayData[0][j].split("(")[1].split(")")[0] == "%") {
+                  if(arrayData[i][j] == "true") row.push({v: 1, f: "true"});
+                  else if(arrayData[i][j] == "false") row.push({v: 0, f: "false"});
+                  else row.push(null);
+               }
+               else row.push({v: arrayData[i][j], f: arrayData[i][j]+" "+arrayData[0][j].split("(")[1].split(")")[0]});
             }
-            else if(arrayData[0][j-1] == "Load1_level" || arrayData[0][j-1] == "Load2_level" || arrayData[0][j-1] == "Load3_level") row.push({v: arrayData[i][j], f: arrayData[i][j]+" %"})
-            else if(arrayData[0][j-1] == "Light_current" || arrayData[0][j-1] == "Tube_current") row.push({v: arrayData[i][j], f: arrayData[i][j]+" A"})
-            else if(arrayData[0][j-1] == "levelIn" || arrayData[0][j-1] == "LMLS-600dimmingSetpoint" || arrayData[0][j-1] == "LMLSdown" || arrayData[0][j-1] == "LMLSup") row.push({v: arrayData[i][j], f: arrayData[i][j]+" ftcd"})
-            else if(arrayData[0][j-1] == "UPTIME") row.push({v: arrayData[i][j], f: arrayData[i][j]+" h"})
             else row.push(arrayData[i][j]);
             // Add to stats
-            if(row[j-1] != null) {stats[j-2] = {mean:stats[j-2].mean, max:Math.max(stats[j-2].max,row[j-1].v), sum:stats[j-2].sum+row[j-1].v, f:row[j-1].f, c:stats[j-2].c+1};}
+            if(row[j] != null) {stats[j-1] = {mean:stats[j-1].mean, max:Math.max(stats[j-1].max,row[j].v), sum:stats[j-1].sum+row[j].v, c:stats[j-1].c+1};}
          }
          arrayData[i] = row;
          document.getElementById("alert_div").innerHTML = "";
@@ -98,7 +151,7 @@
       // Calculate stats
       for(var i = 0; i < stats.length; i++) {
          if(arrayData[0][i+1] == "roomOccupancy" || arrayData[0][i+1] == "afterHours") stats[i] = {mean:Number((stats[i].sum/stats[i].c).toFixed(3)), sum:Number(stats[i].sum.toFixed(3)), f:"%", c:stats[i].c}
-         else stats[i] = {mean:Number((stats[i].sum/stats[i].c).toFixed(3)), max:stats[i].max, sum:Number(stats[i].sum.toFixed(3)), f:stats[i].f.split(" ")[1], c:stats[i].c}
+         else stats[i] = {mean:Number((stats[i].sum/stats[i].c).toFixed(3)), max:stats[i].max, sum:Number(stats[i].sum.toFixed(3)), c:stats[i].c}
       }
       // Set the dropdown range
       document.getElementById("from-date").value = new Date((arrayData[1][0].v-TIMEZONE_SHIFT)*1000).toISOString().substring(0,10);
@@ -159,7 +212,7 @@
       }
       // Reset the Display Array
       for(var i = 0 ; i < stats.length; i++) {
-         stats[i] = {mean: 0, max:0, sum:0, f: stats[i].f, c: 0};
+         stats[i] = {mean: 0, max:0, sum:0, c: 0};
       }
       // Repopulate the Display Array
       colEmpty = true;
@@ -244,7 +297,7 @@
       }
       // Calculate Stats
       stats[pageIndex-1].mean = Number((stats[pageIndex-1].sum/stats[pageIndex-1].c).toFixed(3))
-      htmlstr = "mean: " + stats[index-1].mean + " " + stats[index-1].f + "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
+      htmlstr = "mean: " + stats[index-1].mean + " " + arrayData[0][pageIndex].split("(")[1].split(")")[0] + "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
       document.getElementById("stats_text").innerHTML = htmlstr;
       // Save the range for future comparison
       dataRange = [lower, upper];
@@ -348,7 +401,7 @@
          vAxes: {
             0: {
                maxValue: stats[pageIndex-1].max*1.05,
-               title: arrayData[0][pageIndex] + " (" + stats[pageIndex-1].f + ")",
+               title: arrayData[0][pageIndex],
                titleTextStyle: {
                   italic: false
                }
@@ -386,7 +439,6 @@
          upper = locate(arrayData, parseInt(new Date(document.getElementById("to-date").value+"T"+document.getElementById("to-time").value).getTime())/1000),
          block = 1
          ) {
-      console.log(startIndex)
       document.getElementById("alert_div").innerHTML = "Loading display data...";
       await new Promise(f => setTimeout(f, 0));
       // Grab the bounds from date-time inputs
@@ -498,7 +550,7 @@
       }
       // Calculate Stats
       for(var j = 0; j < stats.length; j++) stats[j].mean = Number((stats[j].sum/stats[j].c).toFixed(3))
-      htmlstr = "mean: " + stats[index-1].mean + " " + stats[index-1].f + "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
+      htmlstr = "mean: " + stats[index-1].mean + " " + arrayData[0][pageIndex].split("(")[1].split(")")[0] + "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
       document.getElementById("stats_text").innerHTML = htmlstr;
       // Set new Display Array
       dispArr = combinedArr;
@@ -615,7 +667,6 @@
          await loadData(changePage, textFromFileLoaded);
       };
       file = document.getElementById("uploaded_file").files[0];
-      console.log(file);
       if(file.type != "application/vnd.ms-excel" && file.type != "text/csv") {
          if(!window.chrome) alert("File must be a .csv!");
          return;

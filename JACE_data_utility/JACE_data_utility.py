@@ -2,19 +2,29 @@
     by Kyle Pickle, 9/20/2022
     created for the CLTC and Frontier Energy project at the AEC
 
-    data_collection_utility.py
+    JACE_data_utility.py
     A a python script designed to automatically combine JACE-formatted logs
     into a single table, with built-in tools for packing and unpacking .csv,
     .db, and .html files for furthe visualization / ease of access
 '''
-from datetime import datetime
-from pathlib import Path
-import win32com.client
 import csv
-import sqlite3
+from datetime import datetime
+import math
 import os
+from pathlib import Path
+import sqlite3
+import win32com.client
 
 os.chdir("../")
+
+# Iterative binary search
+def locate(arr, x):
+    start = 1
+    end = len(arr)-1
+    while start <= end:
+        mid=math.floor((start+end)/2)
+        if arr[mid][0] < x:start = mid+1
+        else: end = mid-1
 
 def import_from_outlook(email, folder):
     ''' Import a batch of emails from Outlook.
@@ -24,7 +34,7 @@ def import_from_outlook(email, folder):
         :param folder: A str representing the folder within the inbox (if any) to check
         '''
     # Create output folder
-    output_dir = Path.cwd() / "data_collection_utility/csv_input"
+    output_dir = Path.cwd() / "JACE_data_utility/csv_input"
     output_dir.mkdir(parents=True, exist_ok=True)
     # Connect to outlook
     outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
@@ -48,18 +58,23 @@ def compile_input():
         
         :return: a 2D array of timestamps vs collected values
     '''
-    input_dir = Path.cwd() / "data_collection_utility/csv_input"
-    rows = [["UTC-Time","Timestamp"]]   # List of [UTC-Times, Timestamp, A, B, C... D]s
+    input_dir = Path.cwd() / "JACE_data_utility/csv_input"
+    rows = [["Timestamp"]]   # List of [UTC-Times, Timestamp, A, B, C... D]s
     # Figure out how many unique values there are
     for i in os.listdir(input_dir):
         with open(str(input_dir)+"\\"+i, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             header = ""
+            lineCount = 0
             for line in csvreader:
-                header = line[0]
-                break
-            if header.split("/")[1] not in rows[0]:
-                rows[0].append(header.split("/")[1]) # Add them to the first row
+                if lineCount == 0: header = line[0].split("/")[1]
+                elif line and line[0] == "Timestamp":
+                    if len(line[3].split(" ")) > 1: header=header+" "+line[3].split(" ")[1]
+                    else: header=header+" (%)"
+                    break
+                lineCount+=1
+            if header not in rows[0]:
+                rows[0].append(header) # Add them to the first row
     rows.sort() # Alphabetize
     # Open each .csv file
     numFile = 0
@@ -68,10 +83,15 @@ def compile_input():
         header = ""
         with open(str(input_dir)+"\\"+i, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
+            lineCount = 0
             for line in csvreader:
-                header = line[0]
-                break
-        csvindex = rows[0].index(header.split("/")[1]) # The column to put these values in
+                if lineCount == 0: header = line[0].split("/")[1]
+                elif line and line[0] == "Timestamp":
+                    if len(line[3].split(" ")) > 1: header=header+" "+line[3].split(" ")[1]
+                    else: header=header+" (%)"
+                    break
+                lineCount+=1
+        csvindex = rows[0].index(header) # The column to put these values in
         subRows = []
         with open(str(input_dir)+"\\"+i, 'r') as csvfile:
             print("["+str(numFile)+"/"+str(len(os.listdir(input_dir)))+"] Reading "+csvfile.name+"...")
@@ -95,22 +115,21 @@ def compile_input():
                 else:
                     value = str(subRow[3]).split(" ")[0]
                 # Parse through the output and insert values
-                while rowindex < len(rows) and rows[rowindex][0] < time:
+                while rowindex < len(rows) and float(rows[rowindex][0]) < time:
                     rowindex += 1
                 # Insert a new empty row if necessary
                 if rowindex == len(rows) or rows[rowindex][0] > time:
                     rows.insert(rowindex, ['']*(len(rows[0])))
                 # Insert time, timestamp and value
                 rows[rowindex][0] = time
-                rows[rowindex][1] = time
                 rows[rowindex][csvindex] = value
-            # Change time back into a timestamp
-        for row in rows[1:]:
-            # Format it back to the Timestamps in the input files
-            strtime = datetime.strftime(datetime.fromtimestamp(int(row[0])), "%d-%m-%y %I:%M:%S %p PDT")
-            if(strtime[strtime.index(':')-2] == "0"):
-                strtime = strtime[:strtime.index(':')-2]+strtime[strtime.index(':')-1:]
-            row[1] = strtime[:strtime.index('-')+1]+strtime[strtime.index('-')+1:strtime[strtime.index('-')+1:].index('-')+strtime.index('-')+1].replace("01","Jan").replace("02","Feb").replace("03","Mar").replace("04","Apr").replace("05","May").replace("06","Jun").replace("07","Jul").replace("08","Aug").replace("09","Sep").replace("10","Oct").replace("11","Nov").replace("12","Dec")+strtime[strtime[strtime.index('-')+1:].index('-')+strtime.index('-')+1:]
+        # Change time back into a timestamp
+    for row in rows[1:]:
+        # Format it back to the Timestamps in the input files
+        strtime = datetime.strftime(datetime.fromtimestamp(int(row[0])), "%d-%m-%y %I:%M:%S %p PDT")
+        if(strtime[strtime.index(':')-2] == "0"):
+            strtime = strtime[:strtime.index(':')-2]+strtime[strtime.index(':')-1:]
+        row[0] = strtime[:strtime.index('-')+1]+strtime[strtime.index('-')+1:strtime[strtime.index('-')+1:].index('-')+strtime.index('-')+1].replace("01","Jan").replace("02","Feb").replace("03","Mar").replace("04","Apr").replace("05","May").replace("06","Jun").replace("07","Jul").replace("08","Aug").replace("09","Sep").replace("10","Oct").replace("11","Nov").replace("12","Dec")+strtime[strtime[strtime.index('-')+1:].index('-')+strtime.index('-')+1:]
     return rows
 
 def generate_csv(table, dir):
@@ -160,7 +179,7 @@ def main():
         print("Import successful!")
     if(choice == "2" or choice.lower() == "compile" or choice == "3" or choice.lower() == "both"):
         table = compile_input()
-        generate_csv(table, Path.cwd() / "data_collection_utility/csv_output/data.csv")
+        generate_csv(table, Path.cwd() / "JACE_data_utility/csv_output/data.csv")
         # generate_db(table, "database_output/data.db")
         print("Compilation successful!")
 
