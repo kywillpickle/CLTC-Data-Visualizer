@@ -58,9 +58,11 @@
    */
    function strToISO(str) {
       // Assume the string goes in the order Month, Day, Year, Hours, Minutes, Seconds, [AM/PM, Timezone]
+      console.log(str)
       tokens = str.split(/[\s\-/:]/)
-      month=""
-      day=""
+      console.log(tokens)
+      let month=""
+      let day=""
       if(tokens[1].split(/[a-z]/i).join("") == "") {
          // ...unless the 2nd token is a string-formatted month
          day = tokens[0]
@@ -88,10 +90,12 @@
       if (year.length == 2) year = "20"+year
       hours = tokens[3]
       if (hours.length == 1) hours = "0"+hours
-      minutes = tokens[4]
+      if (tokens.length > 4) minutes = tokens[4]
       if (minutes.length == 1) minutes = "0"+minutes
-      seconds = tokens[5]
-      if (seconds.length == 1) minutes = "0"+minutes
+      else minutes = "00"
+      if (tokens.length > 5) seconds = tokens[5]
+      else seconds = "00"
+      if (seconds.length == 1) seconds = "0"+seconds
       if (tokens.length > 6) {
          if((tokens[6].toUpperCase()=="PM" && Number(hours)!=12) ||
             (tokens[6].toUpperCase()=="AM" && Number(hours)==12)) hours = (Number(hours)+12).toString()
@@ -141,7 +145,7 @@
                }
                else row.push({v: arrayData[i][j], f: arrayData[i][j]+" "+arrayData[0][j].split("(")[1].split(")")[0]});
             }
-            else row.push(arrayData[i][j]);
+            else row.push({v: arrayData[i][j], f: arrayData[i][j]});
             // Add to stats
             if(row[j] != null) {stats[j-1] = {mean:stats[j-1].mean, max:Math.max(stats[j-1].max,row[j].v), sum:stats[j-1].sum+row[j].v, c:stats[j-1].c+1};}
          }
@@ -297,7 +301,9 @@
       }
       // Calculate Stats
       stats[pageIndex-1].mean = Number((stats[pageIndex-1].sum/stats[pageIndex-1].c).toFixed(3))
-      htmlstr = "mean: " + stats[index-1].mean + " " + arrayData[0][pageIndex].split("(")[1].split(")")[0] + "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
+      htmlstr = "mean: " + stats[index-1].mean
+      if(arrayData[0][pageIndex].split("(").length > 1) htmlstr += " " + arrayData[0][pageIndex].split("(")[1].split(")")[0]
+      htmlstr += "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
       document.getElementById("stats_text").innerHTML = htmlstr;
       // Save the range for future comparison
       dataRange = [lower, upper];
@@ -550,7 +556,9 @@
       }
       // Calculate Stats
       for(var j = 0; j < stats.length; j++) stats[j].mean = Number((stats[j].sum/stats[j].c).toFixed(3))
-      htmlstr = "mean: " + stats[index-1].mean + " " + arrayData[0][pageIndex].split("(")[1].split(")")[0] + "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
+      htmlstr = "mean: " + stats[index-1].mean
+      if(arrayData[0][pageIndex].split("(").length > 1) htmlstr += " " + arrayData[0][pageIndex].split("(")[1].split(")")[0]
+      htmlstr += "<br>" + "# datapoints: " + stats[index-1].c + "<br>";
       document.getElementById("stats_text").innerHTML = htmlstr;
       // Set new Display Array
       dispArr = combinedArr;
