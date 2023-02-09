@@ -58,9 +58,7 @@
    */
    function strToISO(str) {
       // Assume the string goes in the order Month, Day, Year, Hours, Minutes, Seconds, [AM/PM, Timezone]
-      console.log(str)
       tokens = str.split(/[\s\-/:]/)
-      console.log(tokens)
       let month=""
       let day=""
       if(tokens[1].split(/[a-z]/i).join("") == "") {
@@ -139,8 +137,9 @@
             if(arrayData[i][j] == null || arrayData[i][j] == "No CT") row.push(null);
             else if(arrayData[0][j].split("(").length > 1) {
                if(arrayData[0][j].split("(")[1].split(")")[0] == "%") {
-                  if(arrayData[i][j] == "true") row.push({v: 1, f: "true"});
+                  if(arrayData[i][j] == "true") row.push({v: 100, f: "true"});
                   else if(arrayData[i][j] == "false") row.push({v: 0, f: "false"});
+                  else if(arrayData[i][j] != null && Number(arrayData[i][j]) != null) row.push({v: arrayData[i][j], f: arrayData[i][j]+" %"});
                   else row.push(null);
                }
                else row.push({v: arrayData[i][j], f: arrayData[i][j]+" "+arrayData[0][j].split("(")[1].split(")")[0]});
