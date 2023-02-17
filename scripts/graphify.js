@@ -126,7 +126,11 @@
       stats = [];
       for(var i = 1; i < arrayData[0].length; i++) {
          row.push(arrayData[0][i]);
-         stats.push({mean: 0, max: 0, sum:0, c: 0});
+         if(arrayData[0][i].split("(").length > 1) {
+            stats.push({mean: 0, max: 0, sum:0, c: 0, f:arrayData[0][i].split("(")[1].split(")")[0]})
+         }
+         else stats.push({mean: 0, max: 0, sum:0, c: 0, f:""})
+         ;
          indexselectstr += "<option value=\""+i+"\">"+row[i]+"</option>";
       }
       arrayData[0]=row;
@@ -150,15 +154,14 @@
             }
             else row.push({v: arrayData[i][j], f: arrayData[i][j]});
             // Add to stats
-            if(row[j] != null) {stats[j-1] = {mean:stats[j-1].mean, max:Math.max(stats[j-1].max,row[j].v), sum:stats[j-1].sum+row[j].v, c:stats[j-1].c+1};}
+            if(row[j] != null) {stats[j-1] = {mean:stats[j-1].mean, max:Math.max(stats[j-1].max,row[j].v), sum:stats[j-1].sum+row[j].v, c:stats[j-1].c+1, f:stats[j-1].f};}
          }
          arrayData[i] = row;
          document.getElementById("alert_div").innerHTML = "";
       }
       // Calculate stats
       for(var i = 0; i < stats.length; i++) {
-         if(arrayData[0][i+1] == "roomOccupancy" || arrayData[0][i+1] == "afterHours") stats[i] = {mean:Number((stats[i].sum/stats[i].c).toFixed(3)), sum:Number(stats[i].sum.toFixed(3)), f:"%", c:stats[i].c}
-         else stats[i] = {mean:Number((stats[i].sum/stats[i].c).toFixed(3)), max:stats[i].max, sum:Number(stats[i].sum.toFixed(3)), c:stats[i].c}
+         stats[i] = {mean:Number((stats[i].sum/stats[i].c).toFixed(3)), max:stats[i].max, sum:Number(stats[i].sum.toFixed(3)), c:stats[i].c, f:stats[i].f}
       }
       // Set the dropdown range
       document.getElementById("from-date").value = new Date((arrayData[1][0].v-TIMEZONE_SHIFT)*1000).toISOString().substring(0,10);
@@ -219,7 +222,7 @@
       }
       // Reset the Display Array
       for(var i = 0 ; i < stats.length; i++) {
-         stats[i] = {mean: 0, max:0, sum:0, c: 0};
+         stats[i] = {mean: 0, max:0, sum:0, c: 0, f:stats[i].f};
       }
       // Repopulate the Display Array
       colEmpty = true;
@@ -395,7 +398,7 @@
             }
          },
          vAxis: {
-            maxValue: stats[pageIndex-1].max*1.05,
+            maxValue: stats[pageIndex-1].max*1.15,
             titleTextStyle: {
                fontName: 'Abel',
                italic: false,
@@ -409,7 +412,7 @@
          },
          vAxes: {
             0: {
-               maxValue: stats[pageIndex-1].max*1.05,
+               maxValue: stats[pageIndex-1].max*1.15,
                title: arrayData[0][pageIndex],
                titleTextStyle: {
                   italic: false
@@ -566,14 +569,16 @@
       // Set new Display Array
       dispArr = combinedArr;
       // Add Chart Options
+      console.log(block)
       if(block != 1) { // Wrapped chart options
-            chartOptions["series"][dispArr[0].length-2] = {
+         chartOptions["series"][dispArr[0].length-2] = {
             type: 'area',
             targetAxisIndex: numAxes-1
          }
-         chartOptions["vAxes"][numAxes-1]["maxValue"] = stats[pageIndex-1].max*1.05;
+         chartOptions["vAxes"][numAxes-1]["maxValue"] = stats[pageIndex-1].max*1.15;
       }
       else  { // Unwrapped chart options
+         console.log(stats[pageIndex-1].f, stats[index-1].f)
          if(stats[pageIndex-1].f != stats[index-1].f && !document.getElementById("avg-setting").checked) {
             if(numAxes-1 > 0) {
                chartOptions["vAxes"][numAxes-1].title = null;
@@ -585,8 +590,8 @@
             }
             numAxes++;
             chartOptions["vAxes"][numAxes-1] = {
-               maxValue: stats[pageIndex-1].max*1.05,
-               title: arrayData[0][index] + " (" + stats[index-1].f + ")",
+               maxValue: stats[index-1].max*1.15,
+               title: arrayData[0][index],
                titleTextStyle: {
                   italic: false
                }
