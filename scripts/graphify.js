@@ -88,15 +88,19 @@
       if (year.length == 2) year = "20"+year
       hours = tokens[3]
       if (hours.length == 1) hours = "0"+hours
-      if (tokens.length > 4) minutes = tokens[4]
-      if (minutes.length == 1) minutes = "0"+minutes
+      if (tokens.length > 4) {
+         minutes = tokens[4]
+         if (minutes.length == 1) minutes = "0"+minutes
+      }
       else minutes = "00"
-      if (tokens.length > 5) seconds = tokens[5]
+      if (tokens.length > 5) {
+         seconds = tokens[5]
+         if (seconds.length == 1) seconds = "0"+seconds
+      }
       else seconds = "00"
-      if (seconds.length == 1) seconds = "0"+seconds
       if (tokens.length > 6) {
-         if((tokens[6].toUpperCase()=="PM" && Number(hours)!=12) ||
-            (tokens[6].toUpperCase()=="AM" && Number(hours)==12)) hours = (Number(hours)+12).toString()
+         if((tokens[6].toUpperCase()=="PM" && Number(hours)!=12)) hours = (Number(hours)+12).toString()
+         if((tokens[6].toUpperCase()=="AM" && Number(hours)==12)) hours = "00"
       }
       timezone_offset = "+00:00"
       if (tokens.length > 7) {
