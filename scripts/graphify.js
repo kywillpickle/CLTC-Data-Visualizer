@@ -61,30 +61,38 @@
       tokens = str.split(/[\s\-/:]/)
       let month=""
       let day=""
-      if(tokens[1].split(/[a-z]/i).join("") == "") {
-         // ...unless the 2nd token is a string-formatted month
-         day = tokens[0]
-         if(day.length == 1) day = "0" + day
-         if (tokens[1] == "Jan")      month = "01"
-         else if (tokens[1] == "Feb") month = "02"
-         else if (tokens[1] == "Mar") month = "03"
-         else if (tokens[1] == "Apr") month = "04"
-         else if (tokens[1] == "May") month = "05"
-         else if (tokens[1] == "Jun") month = "06"
-         else if (tokens[1] == "Jul") month = "07"
-         else if (tokens[1] == "Aug") month = "08"
-         else if (tokens[1] == "Sep") month = "09"
-         else if (tokens[1] == "Oct") month = "10"
-         else if (tokens[1] == "Nov") month = "11"
-         else if (tokens[1] == "Dec") month = "12"
+      if(tokens[0].length == 4) {
+         // YYYY-MM-DD
+         year = tokens[0]
+         month = tokens[1]
+         day = tokens[2]
       }
       else {
-         month = tokens[0]
-         if(month.length == 1) month = "0" + month
-         day = tokens[1]
-         if(day.length == 1) day = "0" + day
+         if(tokens[1].split(/[a-z]/i).join("") == "") {
+            // ...unless the 2nd token is a string-formatted month
+            day = tokens[0]
+            if(day.length == 1) day = "0" + day
+            if (tokens[1] == "Jan")      month = "01"
+            else if (tokens[1] == "Feb") month = "02"
+            else if (tokens[1] == "Mar") month = "03"
+            else if (tokens[1] == "Apr") month = "04"
+            else if (tokens[1] == "May") month = "05"
+            else if (tokens[1] == "Jun") month = "06"
+            else if (tokens[1] == "Jul") month = "07"
+            else if (tokens[1] == "Aug") month = "08"
+            else if (tokens[1] == "Sep") month = "09"
+            else if (tokens[1] == "Oct") month = "10"
+            else if (tokens[1] == "Nov") month = "11"
+            else if (tokens[1] == "Dec") month = "12"
+         }
+         else {
+            month = tokens[0]
+            day = tokens[1]
+         }
+         year = tokens[2]
       }
-      year = tokens[2]
+      if(month.length == 1) month = "0" + month
+      if(day.length == 1) day = "0" + day
       if (year.length == 2) year = "20"+year
       hours = tokens[3]
       if (hours.length == 1) hours = "0"+hours
