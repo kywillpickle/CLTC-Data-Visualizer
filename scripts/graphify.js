@@ -122,20 +122,15 @@
       arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
       // Add the headers, and initiate max array with 0s
       let row = ["Timestamp"];
-      indexselectstr = "";
       stats = [];
       for(var i = 1; i < arrayData[0].length; i++) {
          row.push(arrayData[0][i]);
          if(arrayData[0][i].split("(").length > 1) {
             stats.push({mean: 0, max: 0, sum:0, c: 0, f:arrayData[0][i].split("(")[1].split(")")[0]})
          }
-         else stats.push({mean: 0, max: 0, sum:0, c: 0, f:""})
-         ;
-         indexselectstr += "<option value=\""+i+"\">"+row[i]+"</option>";
+         else stats.push({mean: 0, max: 0, sum:0, c: 0, f:""});
       }
       arrayData[0]=row;
-      // Add the header options to the index selection dropdown
-      document.getElementById("index-select").innerHTML = indexselectstr;
       // Add the data
       for(var i = 1; i < arrayData.length; i++) {
          let row = [{v: parseInt(new Date(strToISO(arrayData[i][0])).getTime())/1000, f: arrayData[i][0]}];
@@ -181,16 +176,20 @@
    */
    async function changePage(index=null, ignorewarn=false) {
       if(ignorewarn || window.chrome || window.confirm("This will reset the display. Are you sure?")) {
-         if(index != null) pageIndex = index;
+         if (index != null) pageIndex = index;
          // Systematically generate a header based on the loaded .csv data
          htmlstr = "<table style=\"width: 100%; height: 100%\"><tr>";
+         indexselectstr = "";
          for (var i = 1; i < arrayData[0].length; i++) {
             // Create a header with a link to each variables interface
             if (i == pageIndex) htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-secondary\" style=\"width: 100%; font-size: 18px;\" onclick=\"importTable(changePage,"+i+");\">" + arrayData[0][i] + "</button></a></td>";
             else htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-primary\" style=\"width: 100%; font-size: 18px;\" onclick=\"importTable(changePage,"+i+");\">" + arrayData[0][i] + "</button></a></td>";
+            indexselectstr += "<option value=\""+i+"\">"+arrayData[0][i]+"</option>";
          }
          htmlstr += "</tr></table>";
          document.getElementById("nav").innerHTML = htmlstr;
+         // Add the header options to the index selection dropdown
+         document.getElementById("index-select").innerHTML = indexselectstr;
          document.getElementById("index-select").value = pageIndex.toString();
          await drawFromRange();
       }
@@ -574,7 +573,6 @@
       // Set new Display Array
       dispArr = combinedArr;
       // Add Chart Options
-      console.log(block)
       if(block != 1) { // Wrapped chart options
          chartOptions["series"][dispArr[0].length-2] = {
             type: 'area',
@@ -583,7 +581,6 @@
          chartOptions["vAxes"][numAxes-1]["maxValue"] = stats[pageIndex-1].max*1.15;
       }
       else  { // Unwrapped chart options
-         console.log(stats[pageIndex-1].f, stats[index-1].f)
          if(stats[pageIndex-1].f != stats[index-1].f && !document.getElementById("avg-setting").checked) {
             if(numAxes-1 > 0) {
                chartOptions["vAxes"][numAxes-1].title = null;
@@ -802,7 +799,6 @@
          }
          view = new google.visualization.DataView(data);
       }
-      console.log(view)
       lineChart.draw(view, chartOptions);
       document.getElementById("alert_div").innerHTML = "";
    }
