@@ -67,7 +67,7 @@
           <button class="btn btn-secondary" id="select-range-button" onclick="exportGraph()" style="width: 120px; height: 40px; font-size: 20px;">Export SVG</button>
           <br><br>
           <input type="file" id="uploaded_file" style="position: relative; left: 50%; margin-left: -90px; margin-bottom: 5px;">
-          <button class="btn btn-secondary" id="upload-button" onclick="importTable()" style="width: 180px; height: 40px; font-size: 20px;">Upload CSV</button>
+          <button class="btn btn-secondary" id="upload-button" onclick="importTable(changePage, 1)" style="width: 180px; height: 40px; font-size: 20px;">Upload CSV</button>
         </div>
       </div>
       <div id="settings_div" style="left: 50%; bottom: 0px; position: fixed; width: 20%; height: 38%; text-align: right;">
@@ -84,6 +84,8 @@
           <br><br><br>
           <label for="avg-setting" style="margin-left: 10px">Average?:</label>
           <input type="checkbox" id="avg-setting" name="avg-setting">
+          <label for="res-setting" style="margin-left: 10px">Lower Res?:</label>
+          <input type="checkbox" id="res-setting" name="res-setting">
         </div>
       </div>
       <div id="range_div" style="right: 0px; bottom: 0px; position:fixed; width: 30%; height: 30%; text-align: center;">
@@ -101,9 +103,9 @@
           <br>
         </div>
         <div>
-          <button class="btn btn-primary" id="select-range-button" style="font-size: 16px;" onclick="drawFromRange()">Redraw</button>
+          <button class="btn btn-primary" id="select-range-button" style="font-size: 16px;" onclick="importTable(drawFromRange)">Redraw</button>
           or 
-          <button class="btn btn-primary" id="add-range-button" style="font-size: 16px;" onclick="addFromRange()">Add</button>
+          <button class="btn btn-primary" id="add-range-button" style="font-size: 16px;" onclick="importTable(addFromRange)">Add</button>
           <select class="btn btn-secondary dropdown-toggle" name="index-select" id="index-select" style="font-size: 16px;">
           </select>
         </div>

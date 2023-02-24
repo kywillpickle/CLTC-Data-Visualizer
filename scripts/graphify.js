@@ -179,15 +179,15 @@
     * 
     * @param {number} index The index (col) of data to switch to.
    */
-   async function changePage(index=1, ignorewarn=false) {
+   async function changePage(index=null, ignorewarn=false) {
       if(ignorewarn || window.chrome || window.confirm("This will reset the display. Are you sure?")) {
-         pageIndex = index;
+         if(index != null) pageIndex = index;
          // Systematically generate a header based on the loaded .csv data
          htmlstr = "<table style=\"width: 100%; height: 100%\"><tr>";
          for (var i = 1; i < arrayData[0].length; i++) {
             // Create a header with a link to each variables interface
-            if (i == pageIndex) htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-secondary\" style=\"width: 100%; font-size: 18px;\" onclick=\"changePage("+i+");\">" + arrayData[0][i] + "</button></a></td>";
-            else htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-primary\" style=\"width: 100%; font-size: 18px;\" onclick=\"changePage("+i+");\">" + arrayData[0][i] + "</button></a></td>";
+            if (i == pageIndex) htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-secondary\" style=\"width: 100%; font-size: 18px;\" onclick=\"importTable(changePage,"+i+");\">" + arrayData[0][i] + "</button></a></td>";
+            else htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-primary\" style=\"width: 100%; font-size: 18px;\" onclick=\"importTable(changePage,"+i+");\">" + arrayData[0][i] + "</button></a></td>";
          }
          htmlstr += "</tr></table>";
          document.getElementById("nav").innerHTML = htmlstr;
@@ -434,7 +434,10 @@
             upper = upper
          );
       }
-      else await drawCharts();
+      else {
+         arrayData = []
+         await drawCharts();
+      }
       document.getElementById("alert_div").innerHTML = "";
    }
    
@@ -610,7 +613,10 @@
             block = block+1
          );
       }
-      else await drawCharts();
+      else {
+         arrayData = []
+         await drawCharts();
+      }
       document.getElementById("alert_div").innerHTML = "";
    }
    
@@ -676,13 +682,14 @@
    /**
     * Uploads and imports a .csv file.
     */
-   async function importTable() {
+   async function importTable(funct, page=null) {
+      if (page !=null) pageIndex = page;
       document.getElementById("alert_div").innerHTML = "Importing csv...";
       await new Promise(f => setTimeout(f, 0));
       const reader = new FileReader()
       reader.onload = async function(fileLoadedEvent){
          var textFromFileLoaded = fileLoadedEvent.target.result;
-         await loadData(changePage, textFromFileLoaded);
+         await loadData(funct, textFromFileLoaded);
       };
       file = document.getElementById("uploaded_file").files[0];
       if(file.type != "application/vnd.ms-excel" && file.type != "text/csv") {
@@ -695,7 +702,7 @@
    
    /**
     * Exports and downloads the current array as a `.csv`.
-   */
+    */
    async function exportTable() {
       document.getElementById("alert_div").innerHTML = "Exporting csv...";
       await new Promise(f => setTimeout(f, 0));
@@ -785,6 +792,17 @@
       document.getElementById("alert_div").innerHTML = "Drawing chart...";
       await new Promise(f => setTimeout(f, 50));
       var lineChart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      if(document.getElementById("res-setting").checked) {
+         inc = 4000/data.getNumberOfRows();
+         buffer = 0;
+         for(var i = data.getNumberOfRows()-1; i >= 0; i--) {
+            buffer += inc;
+            if (buffer < 1) data.removeRow(i);
+            else buffer -= 1;
+         }
+         view = new google.visualization.DataView(data);
+      }
+      console.log(view)
       lineChart.draw(view, chartOptions);
       document.getElementById("alert_div").innerHTML = "";
    }
