@@ -190,8 +190,8 @@
          indexselectstr = "";
          for (var i = 1; i < arrayData[0].length; i++) {
             // Create a header with a link to each variables interface
-            if (i == pageIndex) htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-secondary\" style=\"width: 100%; font-size: 18px;\" onclick=\"importTable(changePage,"+i+");\">" + arrayData[0][i] + "</button></a></td>";
-            else htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-primary\" style=\"width: 100%; font-size: 18px;\" onclick=\"importTable(changePage,"+i+");\">" + arrayData[0][i] + "</button></a></td>";
+            if (i == pageIndex) htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-secondary\" style=\"width: 100%; font-size: 18px;\" onclick=\"changePage("+i+");\">" + arrayData[0][i] + "</button></a></td>";
+            else htmlstr+= "<td style=\"padding-left: 5px; padding-right: 5px\"><button class=\"btn btn-primary\" style=\"width: 100%; font-size: 18px;\" onclick=\"changePage("+i+");\">" + arrayData[0][i] + "</button></a></td>";
             indexselectstr += "<option value=\""+i+"\">"+arrayData[0][i]+"</option>";
          }
          htmlstr += "</tr></table>";
@@ -442,7 +442,6 @@
          );
       }
       else {
-         arrayData = []
          await drawCharts();
       }
       document.getElementById("alert_div").innerHTML = "";
@@ -619,7 +618,6 @@
          );
       }
       else {
-         arrayData = []
          await drawCharts();
       }
       document.getElementById("alert_div").innerHTML = "";
@@ -787,26 +785,32 @@
    
       // Create a view from the data
       var view = new google.visualization.DataView(data);
-   
+      
+      // Create a simplified view of the data
+      if(document.getElementById("avg-setting").checked) var simp_data = new google.visualization.arrayToDataTable(average());
+      else var simp_data = new google.visualization.arrayToDataTable(dispArr);
+      inc = 4000/simp_data.getNumberOfRows();
+      buffer = 0;
+      for(var i = simp_data.getNumberOfRows()-1; i >= 0; i--) {
+         buffer += inc;
+         if (buffer < 1) simp_data.removeRow(i);
+         else buffer -= 1;
+      }
+      var simp_view = new google.visualization.DataView(simp_data);
+      
       // Create the table object and draw it
       document.getElementById("alert_div").innerHTML = "Drawing table...";
       await new Promise(f => setTimeout(f, 50));
       var table = new google.visualization.Table(document.getElementById('table_div'));
-      table.draw(view, chartOptions);
+      if(document.getElementById("graph-res-setting").checked) table.draw(simp_view, chartOptions);
+      else table.draw(view, chartOptions);
+
       // Create the chart object and draw it
       document.getElementById("alert_div").innerHTML = "Drawing chart...";
       await new Promise(f => setTimeout(f, 50));
       var lineChart = new google.visualization.LineChart(document.getElementById('chart_div'));
-      if(document.getElementById("res-setting").checked) {
-         inc = 4000/data.getNumberOfRows();
-         buffer = 0;
-         for(var i = data.getNumberOfRows()-1; i >= 0; i--) {
-            buffer += inc;
-            if (buffer < 1) data.removeRow(i);
-            else buffer -= 1;
-         }
-         view = new google.visualization.DataView(data);
-      }
-      lineChart.draw(view, chartOptions);
+      if(document.getElementById("table-res-setting").checked) lineChart.draw(simp_view, chartOptions);
+      else lineChart.draw(view, chartOptions);
+      
       document.getElementById("alert_div").innerHTML = "";
    }

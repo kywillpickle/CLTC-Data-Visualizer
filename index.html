@@ -84,8 +84,10 @@
           <br><br><br>
           <label for="avg-setting" style="margin-left: 10px">Average?:</label>
           <input type="checkbox" id="avg-setting" name="avg-setting">
-          <label for="res-setting" style="margin-left: 10px">Lower Res?:</label>
-          <input type="checkbox" id="res-setting" name="res-setting">
+          <label for="graph-res-setting" style="margin-left: 10px">Lower Res Graph?:</label>
+          <input type="checkbox" id="graph-res-setting" name="graph-res-setting" checked="true">
+          <label for="table-res-setting" style="margin-left: 10px">Lower Res Table?:</label>
+          <input type="checkbox" id="table-res-setting" name="table-res-setting" checked="true">
         </div>
       </div>
       <div id="range_div" style="right: 0px; bottom: 0px; position:fixed; width: 30%; height: 30%; text-align: center;">
@@ -103,9 +105,9 @@
           <br>
         </div>
         <div>
-          <button class="btn btn-primary" id="select-range-button" style="font-size: 16px;" onclick="importTable(drawFromRange)">Redraw</button>
+          <button class="btn btn-primary" id="select-range-button" style="font-size: 16px;" onclick="drawFromRange()">Redraw</button>
           or 
-          <button class="btn btn-primary" id="add-range-button" style="font-size: 16px;" onclick="importTable(addFromRange)">Add</button>
+          <button class="btn btn-primary" id="add-range-button" style="font-size: 16px;" onclick="addFromRange()">Add</button>
           <select class="btn btn-secondary dropdown-toggle" name="index-select" id="index-select" style="font-size: 16px;">
           </select>
         </div>
