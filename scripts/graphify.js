@@ -252,7 +252,7 @@
          lower = Math.max(lower, locate(arrayData, Math.floor((arrayData[firstVal][0].v+TIMEZONE_SHIFT)/DAY_LENGTH)*DAY_LENGTH-TIMEZONE_SHIFT));
          upper = Math.min(upper, locate(arrayData, Math.ceil((arrayData[lastVal-1][0].v+TIMEZONE_SHIFT)/DAY_LENGTH)*DAY_LENGTH-TIMEZONE_SHIFT));
          // Wrap the data daily
-         dispArr = [[arrayData[0][0], arrayData[lower][0].f.substring(0,10)]];
+         dispArr = [[arrayData[0][0], strToISO(arrayData[lower][0].f).split('T')[0] + " (" + stats[index-1].f + ")"]];
          for(var i = lower; i < Math.min(locate(arrayData, (Math.ceil((arrayData[lower][0].v+TIMEZONE_SHIFT+1)/DAY_LENGTH))*DAY_LENGTH-TIMEZONE_SHIFT-1), upper); i++) {
             if(arrayData[i][index] != null) {
                dispArr.push(new Array({v:(arrayData[i][0].v+TIMEZONE_SHIFT)%DAY_LENGTH, f:new Date(strToISO(arrayData[i][0].f)).toLocaleTimeString('en-US')}));
@@ -270,7 +270,7 @@
          lower = Math.max(lower, locate(arrayData, Math.floor((arrayData[firstVal][0].v+TIMEZONE_SHIFT-UTC_DAY_SHIFT)/WEEK_LENGTH)*WEEK_LENGTH-TIMEZONE_SHIFT+UTC_DAY_SHIFT));
          upper = Math.min(upper, locate(arrayData, Math.ceil((arrayData[lastVal-1][0].v+TIMEZONE_SHIFT-UTC_DAY_SHIFT)/WEEK_LENGTH)*WEEK_LENGTH-TIMEZONE_SHIFT+UTC_DAY_SHIFT));
          // Wrap the data weekly
-         dispArr = [[arrayData[0][0], arrayData[lower][0].f.substring(0,10)]];
+         dispArr = [[arrayData[0][0], strToISO(arrayData[lower][0].f).split('T')[0] + " (" + stats[index-1].f + ")"]];
          for(var i = lower; i < Math.min(locate(arrayData, (Math.ceil((arrayData[lower][0].v+TIMEZONE_SHIFT+1-UTC_DAY_SHIFT)/WEEK_LENGTH))*WEEK_LENGTH-TIMEZONE_SHIFT-1+UTC_DAY_SHIFT), upper); i++) {
             switch(Math.floor(((arrayData[i][0].v+TIMEZONE_SHIFT-UTC_DAY_SHIFT)%WEEK_LENGTH)/DAY_LENGTH)) {
                case Days.SUN:
@@ -463,13 +463,13 @@
       await new Promise(f => setTimeout(f, 0));
       // Grab the bounds from date-time inputs
       if(document.getElementById("wrap-setting").value == "daily") {
-         dispArr[0].push(arrayData[lower][0].f.substring(0,10));
+         dispArr[0].push(strToISO(arrayData[lower][0].f).split('T')[0] + " (" + stats[index-1].f + ")");
          // Offset the data to the start of the wrap
          timediff = Math.floor(((arrayData[startIndex][0].v-arrayData[startIndex][0].v%DAY_LENGTH+TIMEZONE_SHIFT)/DAY_LENGTH))*DAY_LENGTH-TIMEZONE_SHIFT+block*DAY_LENGTH;
          timebound = DAY_LENGTH;
       }
       else if(document.getElementById("wrap-setting").value == "weekly") {
-         dispArr[0].push(arrayData[lower][0].f.substring(0,10));
+         dispArr[0].push(strToISO(arrayData[lower][0].f).split('T')[0] + " (" + stats[index-1].f + ")");
          // Offset the data to the start of the wrap
          timediff = Math.floor(((arrayData[startIndex][0].v-arrayData[startIndex][0].v%WEEK_LENGTH+TIMEZONE_SHIFT-UTC_DAY_SHIFT)/WEEK_LENGTH))*WEEK_LENGTH+UTC_DAY_SHIFT-TIMEZONE_SHIFT+block*WEEK_LENGTH;
          timebound = WEEK_LENGTH;
@@ -585,6 +585,9 @@
          chartOptions["vAxes"][numAxes-1]["maxValue"] = stats[pageIndex-1].max*1.15;
       }
       else  { // Unwrapped chart options
+         chartOptions["series"][dispArr[0].length-2] = {
+            type: 'area'
+         }
          if(stats[pageIndex-1].f != stats[index-1].f && !document.getElementById("avg-setting").checked) {
             if(numAxes-1 > 0) {
                chartOptions["vAxes"][numAxes-1].title = null;

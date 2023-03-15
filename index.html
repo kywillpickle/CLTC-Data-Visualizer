@@ -115,6 +115,12 @@
     </div>
   </body>
   <script defer type = "text/javascript">
+    document.getElementById("nav").addEventListener('wheel', function(event) {
+      window.scrollBy({
+        left: event.deltaY*2,
+        behavior: "smooth"
+      });
+    });
     $(window).on('load', function() {
       // Get the page index from url
       title = "";
