@@ -142,7 +142,7 @@
          for(var j = 1; j < arrayData[i].length; j++) {
             // Assign both values and formatted values for each datapoint
             // This shows units, and doesn't change the shown value when comparing
-            if(arrayData[i][j] == null || arrayData[i][j] == "No CT") row.push(null);
+            if(arrayData[i][j] == null || arrayData[i][j] == "No CT" || arrayData[i][j] == "NAN") row.push(null);
             else if(arrayData[0][j].split("(").length > 1) {
                if(arrayData[0][j].split("(")[1].split(")")[0] == "%") {
                   if(typeof arrayData[i][j] == "string") {
