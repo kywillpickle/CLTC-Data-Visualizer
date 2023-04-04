@@ -802,14 +802,14 @@
       document.getElementById("alert_div").innerHTML = "Drawing table...";
       await new Promise(f => setTimeout(f, 50));
       var table = new google.visualization.Table(document.getElementById('table_div'));
-      if(document.getElementById("graph-res-setting").checked) table.draw(simp_view, chartOptions);
+      if(document.getElementById("table-res-setting").checked) table.draw(simp_view, chartOptions);
       else table.draw(view, chartOptions);
 
       // Create the chart object and draw it
       document.getElementById("alert_div").innerHTML = "Drawing chart...";
       await new Promise(f => setTimeout(f, 50));
       var lineChart = new google.visualization.LineChart(document.getElementById('chart_div'));
-      if(document.getElementById("table-res-setting").checked) lineChart.draw(simp_view, chartOptions);
+      if(document.getElementById("graph-res-setting").checked) lineChart.draw(simp_view, chartOptions);
       else lineChart.draw(view, chartOptions);
       
       document.getElementById("alert_div").innerHTML = "";
