@@ -55,7 +55,11 @@
       <div id="table_div" style="text-align: center; left: 0px; top: 55px; position: fixed; width: 20%; height: 100%; padding-bottom: 55px;"></div>
       <div id="chart_div" style="right: 0px; top: 55px; position:fixed; width: 80%; height: 70%"></div>
       <div id="title_div" style="text-align: left; left: 20%; top: 55px; position:fixed; width: 80%; height: 90px">
-        <img src="https://kywillpickle.github.io/CLTC-Data-Visualizer/assets/2018_Logo_Horiz_Stacked-No_DeptDesign_0.png" style="height: 70px; padding-top: 10px; padding-bottom: 10px; padding-left: 20px; z-index: 1;">      <div id="alert_div" style="text-align: center; width: 80%; top: 55px; left: 20%; padding-top: 10px; position:fixed;"></div>
+        <img src="https://kywillpickle.github.io/CLTC-Data-Visualizer/assets/2018_Logo_Horiz_Stacked-No_DeptDesign_0.png" style="height: 70px; padding-top: 10px; padding-bottom: 10px; padding-left: 20px; z-index: 1;">
+        <div id="alert_div" style="text-align: center; width: 80%; top: 55px; left: 20%; padding-top: 10px; position:fixed;"></div>
+        <div id="help_div" style="right: 0%; top: 55px; position:fixed; width: 90px; height: 90px">
+          <a href="https://github.com/kywillpickle/CLTC-Data-Visualizer" target="_blank"><img src="https://kywillpickle.github.io/CLTC-Data-Visualizer/assets/info-button.svg" style="height: 70px; padding-top: 10px; padding-bottom: 10px; padding-left: 20px; z-index: 1;"></a>
+        </div>
       </div>
       <div id="stats_div" style="left: 20%; bottom: 0px; position: fixed; width: 30%; height: 30%; text-align: center;">
         <div>
@@ -66,7 +70,7 @@
           <button class="btn btn-secondary" id="select-range-button" onclick="exportTable()" style="width: 120px; height: 40px; font-size: 20px;">Export CSV</button>
           <button class="btn btn-secondary" id="select-range-button" onclick="exportGraph()" style="width: 120px; height: 40px; font-size: 20px;">Export SVG</button>
           <br><br>
-          <input type="file" id="uploaded_file" style="position: relative; left: 50%; margin-left: -90px; margin-bottom: 5px;">
+          <input type="file" id="uploaded_file" onchange="importTable(changePage, 1)" style="position: relative; left: 50%; margin-left: -90px; margin-bottom: 5px;">
           <button class="btn btn-secondary" id="upload-button" onclick="importTable(changePage, 1)" style="width: 180px; height: 40px; font-size: 20px;">Upload CSV</button>
         </div>
       </div>

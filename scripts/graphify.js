@@ -696,7 +696,7 @@
       };
       file = document.getElementById("uploaded_file").files[0];
       if(file.type != "application/vnd.ms-excel" && file.type != "text/csv") {
-         if(!window.chrome) alert("File must be a .csv!");
+         if(!window.chrome) document.getElementById("alert_div").innerHTML = "File must be a .csv!";
          return;
       }
       reader.readAsText(document.getElementById("uploaded_file").files[0], "UTF-8");
@@ -715,30 +715,31 @@
       // Create a new csv as a string
       csvstr = data[0][0];
       for(var i = 1; i < data[0].length; i++) {
-         csvstr += ","+data[0][i]
+         csvstr += ","+data[0][i].split("(")[0].substring(0,data[0][i].split("(")[0].length-1)
       }
       // Populate csv with data
       for(var i = 1; i < data.length; i++) {
          csvstr += "\n"+data[i][0].f;
          for(var j = 1; j < data[i].length; j++) {
             if(data[i][j] == null) csvstr += ",";
-            else csvstr += ","+data[i][j].f;
+            else csvstr += ","+data[i][j].v;
          }
       }
       // Create a new html object to download from
       var link = document.createElement("a");
       // Name the file something useful
+      var column_name = arrayData[0][pageIndex].split("(")[0].substring(0,arrayData[0][pageIndex].split("(")[0].length-1)
       if(data[data.length-1][0].v < DAY_LENGTH) {
          // Data is wrapped daily
-         link.download = arrayData[0][pageIndex]+"_daily_"+data[0][1]+"_to_"+data[0][data[0].length-1]+".csv";
+         link.download = column_name+"_daily_"+data[0][1]+"_to_"+data[0][data[0].length-1]+".csv";
       }
       else if(data[data.length-1][0].v < WEEK_LENGTH) {
          // Data is wrapped weekly
-         link.download = arrayData[0][pageIndex]+"_weekly_"+data[0][1]+"_to_"+data[0][data[0].length-1]+".csv";
+         link.download = column_name+"_weekly_"+data[0][1]+"_to_"+data[0][data[0].length-1]+".csv";
       }
       else {
          // Data is not wrapped
-         link.download = arrayData[0][pageIndex]+"_"+new Date(data[1][0].v*1000).toLocaleDateString('en-US')+"_to_"+new Date(data[data.length-1][0].v*1000).toLocaleDateString('en-US')+".csv";
+         link.download = column_name+"_"+new Date(data[1][0].v*1000).toLocaleDateString('en-US')+"_to_"+new Date(data[data.length-1][0].v*1000).toLocaleDateString('en-US')+".csv";
       }
       // Add csv to object and start download
       link.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvstr);
