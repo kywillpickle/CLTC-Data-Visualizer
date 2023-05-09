@@ -146,8 +146,8 @@
             else if(arrayData[0][j].split("(").length > 1) {
                if(arrayData[0][j].split("(")[1].split(")")[0] == "%") {
                   if(typeof arrayData[i][j] == "string") {
-                     if(arrayData[i][j].toLowerCase() == "true") row.push({v: 100, f: "true"});
-                     else if(arrayData[i][j].toLowerCase() == "false") row.push({v: 0, f: "false"});
+                     if(arrayData[i][j].toLowerCase() == "true" || arrayData[i][j].toLowerCase() == "on") row.push({v: 100, f: arrayData[i][j]});
+                     else if(arrayData[i][j].toLowerCase() == "false" || arrayData[i][j].toLowerCase() == "off") row.push({v: 0, f: arrayData[i][j]});
                   }
                   else if(arrayData[i][j] != null && Number(arrayData[i][j]) != null) row.push({v: arrayData[i][j], f: arrayData[i][j]+" %"});
                   else row.push(null);
