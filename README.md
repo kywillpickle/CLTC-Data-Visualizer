@@ -1,5 +1,8 @@
 # CLTC AEC Data Visualizer <img src="assets/2018_Logo_Horiz_Stacked-No_DeptDesign_0.png" alt="CLTC Logo" width="150" style="float: right;"/>
 
+## IMPORTANT
+The UC Davis and CLTC logos are property of the University of California, Davis! I do not own them, and they are not included in the repository license.
+
 ## Summary
 A static, purely front-end version of the data tool used by the CLTC to store and display chronological data collected over long periods of time.
 This version has been implemented into Github pages for easy access without the need of setting up the Ruby on Rails backend.
